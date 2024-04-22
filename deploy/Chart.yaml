@@ -1,0 +1,12 @@
+---
+#The chart API version (required)
+apiVersion: v2
+#The name of the chart (required)
+name: mdmhub-kong-operator
+#A SemVer 2 version (required)
+version: ${version}
+#A list of the chart requirements (optional)
+appVersion: ${version}
+
+annotations:
+  dockerRegistry: ${dockerRegistry}

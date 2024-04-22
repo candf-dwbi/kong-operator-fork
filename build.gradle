@@ -1,0 +1,58 @@
+plugins {
+    id 'org.unbroken-dome.helm' version "2.0.0"
+    id 'org.unbroken-dome.helm-publish' version "2.0.0"
+    id 'org.unbroken-dome.helm-releases' version "2.0.0"
+    id 'com.palantir.docker' version '0.36.0'
+}
+
+ext {
+    artifactoryUrl = (System.env['ARTIFACTORY_URL'] != null && System.env['ARTIFACTORY_URL'] != '') ? System.env['ARTIFACTORY_URL'] : project.property('artifactory.url')
+    artifactoryRepoKey = System.env['ARTIFACTORY_REPO_KEY'] != null ? System.env['ARTIFACTORY_REPO_KEY'] : project.property('artifactory.repoKey')
+    artifactoryUserName = System.env['ARTIFACTORY_USER'] != null ? System.env['ARTIFACTORY_USER'] : project.property('artifactory.username')
+    artifactoryPassword = System.env['ARTIFACTORY_PASSWORD'] != null ? System.env['ARTIFACTORY_PASSWORD'] : project.property('artifactory.password')
+    currentBranch = System.getProperty("branch")
+    buildNumber = System.getProperty("build")
+    chartRepoUrl = System.env['CHARTREPO_URL'] != null ? System.env['CHARTREPO_URL'] : project.property('chartRepo.url')
+    chartRepoUsername = System.env['ARTIFACTORY_USER'] != null ? System.env['ARTIFACTORY_USER'] : project.property('chartRepo.username')
+    chartRepoPassword = System.env['ARTIFACTORY_PASSWORD'] != null ? System.env['ARTIFACTORY_PASSWORD'] : project.property('chartRepo.password')
+    dockerRegistry = System.env['DOCKER_REGISTRY'] ?: project.property('dockerRegistry.url')
+}
+
+docker {
+    name "${dockerRegistry}/mdmtools/kong-operator"
+    dockerfile file("build/Dockerfile")
+    copySpec.from("helm-charts").into("helm-charts").with(project.copySpec().from("watches.yaml").into("../")).with(project.copySpec().from("LICENSE").into("../"))
+    tags "${version}"
+    pull true
+}
+
+helm {
+    filtering {
+        values.put "version", "${version}"
+        values.put "buildTime", "${System.currentTimeMillis()}"
+        values.put "dockerRegistry", "${dockerRegistry}"
+    }
+    charts {
+        kong_operator {
+            sourceDir = file('deploy')
+            chartVersion = version.replace('_', '-')
+        }
+    }
+    releases {
+        kong_operator {
+            from charts.kong_operator
+        }
+    }
+    publishing {
+        repositories {
+            artifactory {
+                // TO CHANGE
+                url = uri(chartRepoUrl)
+                credentials {
+                    username = chartRepoUsername
+                    password = chartRepoPassword
+                }
+            }
+        }
+    }
+}

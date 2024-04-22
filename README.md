@@ -131,7 +131,7 @@ If you create a `Kong` with an empty `.spec`, the Kong will have the default con
 
 [kong-url]: https://konghq.com/
 [kong-logo]: https://konghq.com/wp-content/uploads/2018/05/kong-logo-github-readme.png
-[kong-cr-example]: deploy/crds/charts_v1alpha1_kong_cr.yaml
+[kong-cr-example]: deploy/example/charts_v1alpha1_kong_cr.yaml
 [microk8s]: https://microk8s.io
 [section-quick-start]: #quick-start
 [section-configuration]: #configuration
