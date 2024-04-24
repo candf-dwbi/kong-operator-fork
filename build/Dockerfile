@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/helm-operator:v0.17.2
+FROM quay.io/operator-framework/helm-operator:v1.34
 
 ADD LICENSE /licenses/LICENSE
 
